@@ -89,6 +89,8 @@ func AddTodo(w http.ResponseWriter, r *http.Request) {
 
 func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
+	var updatedTodo t.Todo
+
 	if r.Method != http.MethodPatch {
 		errMsg, err := json.Marshal(t.ErrorResponse{Message: "Method not supported"})
 
@@ -102,6 +104,31 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		w.Write(errMsg)
 		return
 	}
+
+	newTodo, err := io.ReadAll(r.Body)
+
+	err = json.Unmarshal(newTodo, &updatedTodo)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte("An error occured"))
+	}
+
+	for index, todo := range t.Todos {
+
+		if strings.EqualFold(todo.Title, updatedTodo.Title) {
+			todo.Author = updatedTodo.Author
+			todo.Body = updatedTodo.Body
+			t.Todos[index] = todo
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte("Todo Updated successfully"))
+			return
+		}
+	}
+
+	// w.Header().Set("Content-Type", "aaplication/json")
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("No todo with title '" + updatedTodo.Title + "' found"))
 
 }
 

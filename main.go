@@ -38,6 +38,8 @@ func main() {
 
 	router.HandleFunc("/add-todo", t.AddTodo)
 
+	router.HandleFunc("/update-todo", t.UpdateTodo)
+
 	router.HandleFunc("/delete-todo", t.DeleteTodo)
 
 	server := http.Server{
