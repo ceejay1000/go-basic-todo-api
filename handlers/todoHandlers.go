@@ -12,6 +12,20 @@ import (
 
 func GetAllTodos(w http.ResponseWriter, r *http.Request) {
 
+	if r.Method != http.MethodGet {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+
+		errResponse, err := json.Marshal(t.ErrorResponse{Message: "Method Not Allowed"})
+
+		if err != nil {
+			w.Write([]byte("An error occured"))
+		}
+
+		w.Write(errResponse)
+		return
+	}
+
 	allTodos := t.Todos
 	todoJson, err := json.Marshal(allTodos)
 
@@ -58,12 +72,12 @@ func AddTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Todos := append(t.Todos, t.TodoRequest)
+	t.Todos = append(t.Todos, t.TodoRequest)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	todoResponse, err := json.Marshal(Todos)
+	todoResponse, err := json.Marshal(t.Todos)
 
 	if err != nil {
 		log.Println("Cannot parse json")
@@ -71,6 +85,24 @@ func AddTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(todoResponse)
+}
+
+func UpdateTodo(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPatch {
+		errMsg, err := json.Marshal(t.ErrorResponse{Message: "Method not supported"})
+
+		if err != nil {
+			log.Println("Cannot Marshal JSON")
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+
+		w.Write(errMsg)
+		return
+	}
+
 }
 
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {

@@ -16,6 +16,14 @@ func init() {
 type handler struct{}
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	w.WriteHeader(http.StatusBadRequest)
+
+	if r.URL.Path != "/" {
+		fmt.Fprintf(w, "Invalid path requested")
+		return
+	}
+
 	fmt.Fprintf(w, "Welcome to the todo api")
 }
 
